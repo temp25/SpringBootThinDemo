@@ -1,0 +1,78 @@
+buildscript{
+    
+    ext {
+        springBootVersion = "2.1.0.RELEASE"
+        wrapperVersion = "1.0.21.RELEASE"
+    }
+    
+    repositories {
+        mavenCentral()
+    }
+    
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("org.springframework.boot.experimental:spring-boot-thin-gradle-plugin:${wrapperVersion}")
+    }
+    
+}
+
+apply plugin: "java"
+apply plugin: "eclipse"
+apply plugin: "org.springframework.boot"
+apply plugin: "io.spring.dependency-management"
+
+apply plugin: "maven"
+apply plugin: "org.springframework.boot.experimental.thin-launcher"
+
+group = 'com.example.springdemo'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web")
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+springBoot {
+    mainClassName = 'com.example.springdemo.DemoApp'
+}
+
+bootJar {
+//    This is overridden by the mainClassName in springBoot{} and added here for reference purposes.
+    mainClassName = 'com.example.springdemo.DemoApp'
+}
+
+bootJar {
+//    This is overridden by the mainClassName in springBoot{} and added here for reference purposes.
+    mainClassName = 'com.example.springdemo.DemoApp'
+
+//    This block serves the same purpose as the above thus commented out. Added here for reference purposes
+//    manifest {
+//        attributes 'Start-Class': 'com.example.springdemo.DemoApp'
+//    }
+}
+
+
+//Enable this to generate and use a pom.xml file
+apply plugin: 'maven'
+
+//If you want to customize the generated pom.xml you can edit this task and add it as a dependency to the bootJar task
+task createPom {
+    def basePath = 'build/resources/main/META-INF/maven'
+    doLast {
+        pom {
+            withXml(dependencyManagement.pomConfigurer)
+        }.writeTo("${basePath}/${project.group}/${project.name}/pom.xml")
+    }
+}
+
+//Uncomment the following to use your custom generated pom.xml
+bootJar.dependsOn = [createPom]
+
+//Enable this to generate and use a thin.properties file
+//bootJar.dependsOn = [thinProperties]
